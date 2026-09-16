@@ -1,0 +1,44 @@
+{
+  "stands": [
+    {
+      "id": "e9f24ce16def",
+      "name": "teste stands das girls",
+      "course": "python",
+      "code_salt": "4783811b21471f6cd31a40774ed4219a",
+      "code_hash": "9105b45ad0e5319ade613e9c5fd2cc410dd46be3f2e7e9f6b0855f86dadcca6d",
+      "created_at": "2026-09-16T10:59:23-03:00"
+    },
+    {
+      "id": "0f3b156b338a",
+      "name": "Marvel Boys",
+      "course": "web",
+      "code_salt": "4deb6fde5e0f96beb525a7939acfaa8b",
+      "code_hash": "0af0fd82a0367b0d959f0640d343f63ac09725711d0f6db8c8781befe898f37c",
+      "created_at": "2026-09-16T11:03:39-03:00"
+    }
+  ],
+  "visitas": [
+    {
+      "id": "28d285df53e7430d82365e93761d0f85",
+      "stand_id": "e9f24ce16def",
+      "stand_nome": "teste stands das girls",
+      "curso": "python",
+      "visitor_hash": "bcce2467e26e6bd3e3ca6c407180e6a566c5f22e9d55410b2534269fb1be9ddc",
+      "started_at": "2026-09-16T11:01:16-03:00",
+      "finished_at": "2026-09-16T11:01:23-03:00",
+      "duration_seconds": 7,
+      "stars": 5
+    },
+    {
+      "id": "4f5689b999e9494599c75e1a66c43634",
+      "stand_id": "0f3b156b338a",
+      "stand_nome": "Marvel Boys",
+      "curso": "web",
+      "visitor_hash": "bcce2467e26e6bd3e3ca6c407180e6a566c5f22e9d55410b2534269fb1be9ddc",
+      "started_at": "2026-09-16T11:04:08-03:00",
+      "finished_at": "2026-09-16T11:04:25-03:00",
+      "duration_seconds": 17,
+      "stars": 5
+    }
+  ]
+}
