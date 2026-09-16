@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Avaliação dos projetos e painel dos expositores da Feira Tech Vocação." />
+    <meta property="og:title" content="Feira Tech Vocação" />
+    <meta property="og:description" content="Visite, avalie e acompanhe os projetos da Feira Tech." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <title>Feira Tech Vocação</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="deco deco-navy"></div><div class="deco deco-lime"></div><div class="deco deco-ring"></div><div class="deco deco-magenta"></div>
+    <main class="app">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Feira Tech — início">Feira <span>Tech</span></a>
+        <a class="nav-link" href="/expositor">Área do expositor</a>
+      </header>
+
+      <section id="homeView" class="view">
+        <div class="intro">
+          <p class="eyebrow">VOCÊ FAZ PARTE DESTA FEIRA</p>
+          <h1>Descubra. Participe.<br /><span>Avalie.</span></h1>
+          <p>Escolha como deseja entrar e ajude nossos alunos a transformar ideias em experiências.</p>
+        </div>
+        <div class="choice-grid">
+          <button class="choice choice-visitor" id="visitorEntry">
+            <span class="choice-icon">★</span><span><strong>Sou visitante</strong><small>Conheça e avalie os projetos</small></span><b>→</b>
+          </button>
+          <a class="choice choice-exhibitor" href="/expositor">
+            <span class="choice-icon">▥</span><span><strong>Sou expositor</strong><small>Acompanhe os resultados do seu stand</small></span><b>→</b>
+          </a>
+        </div>
+        <section class="stand-browser" id="standBrowser" hidden>
+          <div class="section-heading"><div><p class="eyebrow">PROJETOS</p><h2>Qual stand você está visitando?</h2></div><button class="text-button" id="closeBrowser">Fechar</button></div>
+          <div id="standList" class="stand-list"></div>
+          <p id="emptyStands" class="empty" hidden>Nenhum stand foi cadastrado ainda.</p>
+        </section>
+        <section class="public-wall" id="publicWall">
+          <div class="section-heading"><div><p class="eyebrow">VOZES DA FEIRA</p><h2>Quem visitou, apoiou.</h2></div><span class="wall-count" id="wallCount"></span></div>
+          <div class="wall-grid" id="wallGrid"></div>
+          <p class="empty" id="emptyWall" hidden>Os primeiros apoios aparecerão aqui após a aprovação dos expositores.</p>
+        </section>
+      </section>
+
+      <section id="visitView" class="view" hidden>
+        <a class="back" href="/">← Voltar</a>
+        <div class="visit-panel">
+          <div class="live-pill"><i></i> VISITA EM ANDAMENTO</div>
+          <p class="course-label" id="visitCourse"></p>
+          <h1 id="visitStandName">Carregando...</h1>
+          <div class="timer"><span id="visitTimer">00:00</span><small>tempo da sua visita</small></div>
+          <div id="ratingArea">
+            <p class="rating-question">O que você achou deste projeto?</p>
+            <div class="star-picker" id="starPicker" aria-label="Avaliação de uma a cinco estrelas">
+              <button data-stars="1" aria-label="1 estrela">★</button><button data-stars="2" aria-label="2 estrelas">★</button><button data-stars="3" aria-label="3 estrelas">★</button><button data-stars="4" aria-label="4 estrelas">★</button><button data-stars="5" aria-label="5 estrelas">★</button>
+            </div>
+            <button class="btn btn-primary btn-full" id="submitRating" disabled>Enviar avaliação</button>
+          </div>
+          <div class="success-state" id="successState" hidden><span>✓</span><h2>Obrigado pela visita!</h2><p>Sua avaliação foi registrada. Agora ajude este projeto a ganhar o mundo.</p><button class="btn btn-primary btn-full" id="openSocialStudio">Criar meu card e compartilhar</button><a class="btn btn-secondary btn-full" href="/">Conhecer outro projeto</a></div>
+          <div class="error-state" id="visitError" hidden><h2>Não foi possível iniciar</h2><p></p><a class="btn btn-secondary" href="/">Voltar ao início</a></div>
+        </div>
+      </section>
+
+      <section id="socialView" class="view" hidden>
+        <a class="back" id="backToSuccess" href="#">← Voltar</a>
+        <div class="social-heading"><p class="eyebrow">ESTÚDIO SOCIAL</p><h1>Eu vivi essa ideia.</h1><p>Sua foto fica somente neste aparelho e nunca é enviada ao servidor.</p></div>
+        <div class="social-layout">
+          <div class="social-preview"><canvas id="socialCanvas" width="1080" height="1080" aria-label="Prévia do card social"></canvas></div>
+          <div class="social-tools">
+            <label class="photo-picker" for="socialPhoto">Adicionar foto opcional<input id="socialPhoto" type="file" accept="image/*" capture="environment" /></label>
+            <div class="social-actions"><button class="btn btn-primary btn-full" id="shareCard">Compartilhar card</button><button class="btn btn-secondary btn-full" id="downloadCard">Baixar imagem</button><button class="text-button" id="copyCaption">Copiar texto e hashtags</button></div>
+            <form class="support-form" id="supportForm"><p class="step">MURAL DA FEIRA</p><h2>Deixe seu apoio ao projeto</h2><textarea id="supportMessage" minlength="8" maxlength="180" placeholder="Conte o que mais chamou sua atenção..." required></textarea><label class="consent"><input id="supportConsent" type="checkbox" required /><span>Autorizo a publicação desta mensagem, nota e projeto no mural público. Minha foto não será enviada.</span></label><button class="btn btn-dark btn-full" type="submit">Enviar para aprovação</button></form>
+          </div>
+        </div>
+      </section>
+
+      <section id="exhibitorView" class="view" hidden comments="none">
+        <div class="exhibitor-header"><div><p class="eyebrow">ÁREA DO EXPOSITOR</p><h1>Seu projeto em números.</h1></div><a class="back" href="/">← Início</a></div>
+        <div class="auth-layout" id="authLayout">
+          <form class="form-panel" id="accessForm">
+            <p class="step">JÁ TENHO UM STAND</p><h2>Acessar resultados</h2>
+            <label for="standSelect">Stand</label><select id="standSelect" required><option value="">Selecione seu stand</option></select>
+            <label for="accessCode">Código secreto</label><input id="accessCode" inputmode="numeric" maxlength="6" placeholder="000000" required />
+            <button class="btn btn-primary btn-full" type="submit">Entrar no painel</button>
+          </form>
+          <form class="form-panel accent-panel" id="createForm">
+            <p class="step">PRIMEIRO ACESSO</p><h2>Cadastrar meu stand</h2>
+            <label for="standName">Nome do projeto ou aluno</label><input id="standName" maxlength="100" placeholder="Ex.: Horta Inteligente" required />
+            <label for="courseSelect">Curso</label><select id="courseSelect"><option value="python">Python</option><option value="web">Web Design</option><option value="audio">Audiovisual</option><option value="outro">Outro</option></select>
+            <button class="btn btn-dark btn-full" type="submit">Criar stand</button>
+          </form>
+        </div>
+        <div class="code-reveal" id="codeReveal" hidden><p>ANOTE SEU CÓDIGO SECRETO</p><strong id="newAccessCode"></strong><small>Ele será exibido somente agora e será necessário para acessar seus resultados.</small><a id="openNewDashboard" class="btn btn-dark">Abrir meu painel</a></div>
+        <div id="formMessage" class="form-message" hidden></div>
+      </section>
+
+      <section id="dashboardView" class="view" hidden>
+        <div class="dashboard-heading"><div><p class="eyebrow" id="dashboardCourse"></p><h1 id="dashboardName">Meu stand</h1></div><a class="back" href="/expositor">← Sair</a></div>
+        <div class="metrics">
+          <article><small>VISITANTES</small><strong id="metricVisitors">0</strong><span>pessoas</span></article>
+          <article><small>NOTA MÉDIA</small><strong id="metricRating">—</strong><span>de 5 estrelas</span></article>
+          <article><small>TEMPO MÉDIO</small><strong id="metricAverageTime">—</strong><span>por visitante</span></article>
+          <article><small>TEMPO TOTAL</small><strong id="metricTotalTime">—</strong><span>de interação</span></article>
+          <article><small>COMPARTILHAMENTOS</small><strong id="metricShares">0</strong><span>iniciados</span></article>
+          <article><small>APOIOS NO MURAL</small><strong id="metricSupports">0</strong><span>publicados</span></article>
+        </div>
+        <div class="dashboard-grid">
+          <article class="data-panel"><div class="section-heading"><h2>Distribuição das notas</h2><button class="icon-button" id="refreshDashboard" title="Atualizar resultados" aria-label="Atualizar resultados">↻</button></div><div id="ratingDistribution"></div></article>
+          <article class="data-panel qr-panel"><h2>QR Code do stand</h2><img id="standQr" alt="QR Code para acessar a avaliação deste stand" /><a class="btn btn-secondary btn-full" id="downloadQr" download="qr-code-stand.png">Baixar QR Code</a></article>
+        </div>
+        <article class="data-panel"><div class="section-heading"><h2>Visitas recentes</h2><a class="text-button" id="exportCsv">Baixar CSV</a></div><div id="recentVisits" class="recent-list"></div></article>
+        <article class="data-panel moderation-panel"><div class="section-heading"><div><p class="step">MODERAÇÃO</p><h2>Apoios aguardando aprovação</h2></div><b id="pendingCount">0</b></div><div id="pendingSupports" class="pending-list"></div></article>
+      </section>
+    </main>
+    <div class="toast" id="toast" role="status"></div>
+    <script src="/static/script.js"></script>
+  </body>
+</html>

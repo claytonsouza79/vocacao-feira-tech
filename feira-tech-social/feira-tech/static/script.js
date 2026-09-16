@@ -1,0 +1,318 @@
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const courseLabels = { python: 'Python', web: 'Web Design', audio: 'Audiovisual', outro: 'Outro' };
+  const state = { stars: 0, visitId: null, startedAt: Date.now(), timer: null, stand: null, photo: null };
+  const path = location.pathname;
+  const hashtags = '#feiratechvocacao #cursosvocacao #transformandovidas #vocacao #professorclayton #professorivan #professorotavio #simone #isa #professorabia #alunosvocacao #jovensvocacao #primeirafeiratechsede #conclusaocurso #partiunovocurso #partiunovoprojeto #primeiroprojeto';
+
+  function visitorKey() {
+    let key = localStorage.getItem('feira-tech-visitor');
+    if (!key) {
+      key = `${Date.now().toString(36)}_${crypto.randomUUID().replaceAll('-', '')}`;
+      localStorage.setItem('feira-tech-visitor', key);
+    }
+    return key;
+  }
+
+  async function request(url, options = {}) {
+    const response = await fetch(url, options);
+    const data = await response.json();
+    if (!response.ok) throw Object.assign(new Error(data.error || 'Não foi possível concluir.'), { status: response.status, data });
+    return data;
+  }
+
+  function post(url, body) {
+    return request(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  }
+
+  function showOnly(id) {
+    document.querySelectorAll('.view').forEach((view) => { view.hidden = view.id !== id; });
+  }
+
+  function toast(message) {
+    const element = $('toast');
+    element.textContent = message;
+    element.classList.add('show');
+    clearTimeout(element.timer);
+    element.timer = setTimeout(() => element.classList.remove('show'), 2600);
+  }
+
+  function formatDuration(seconds) {
+    if (!seconds) return '—';
+    const minutes = Math.floor(seconds / 60);
+    const remaining = seconds % 60;
+    return minutes ? `${minutes}min ${remaining}s` : `${remaining}s`;
+  }
+
+  async function loadStands() {
+    const stands = await request('/api/stands');
+    const list = $('standList');
+    const select = $('standSelect');
+    list.innerHTML = '';
+    select.innerHTML = '<option value="">Selecione seu stand</option>';
+    $('emptyStands').hidden = stands.length > 0;
+    stands.forEach((stand) => {
+      const link = document.createElement('a');
+      link.href = `/visitar/${stand.id}`;
+      link.className = 'stand-row';
+      link.innerHTML = `<span class="course-dot course-${stand.course}"></span><span><strong></strong><small>${courseLabels[stand.course]}</small></span><b>→</b>`;
+      link.querySelector('strong').textContent = stand.name;
+      list.appendChild(link);
+      select.add(new Option(`${stand.name} · ${courseLabels[stand.course]}`, stand.id));
+    });
+    return stands;
+  }
+
+  async function loadWall() {
+    const supports = await request('/api/mural');
+    const grid = $('wallGrid');
+    grid.replaceChildren();
+    $('wallCount').textContent = supports.length ? `${supports.length} apoios` : '';
+    $('emptyWall').hidden = supports.length > 0;
+    supports.forEach((support) => {
+      const article = document.createElement('article');
+      const message = document.createElement('p');
+      const footer = document.createElement('div');
+      const project = document.createElement('strong');
+      const stars = document.createElement('span');
+      message.textContent = `“${support.message}”`;
+      project.textContent = support.stand_name;
+      stars.textContent = `${support.stars} ★`;
+      footer.append(project, stars);
+      article.append(message, footer);
+      grid.appendChild(article);
+    });
+  }
+
+  function initHome() {
+    showOnly('homeView');
+    loadWall().catch(() => { $('publicWall').hidden = true; });
+    $('visitorEntry').addEventListener('click', async () => {
+      $('standBrowser').hidden = false;
+      await loadStands();
+      $('standBrowser').scrollIntoView({ behavior: 'smooth' });
+    });
+    $('closeBrowser').addEventListener('click', () => { $('standBrowser').hidden = true; });
+  }
+
+  async function initVisit(standId) {
+    showOnly('visitView');
+    try {
+      const stand = await request(`/api/stands/${standId}`);
+      state.stand = stand;
+      $('visitStandName').textContent = stand.name;
+      $('visitCourse').textContent = courseLabels[stand.course];
+      state.startedAt = Date.now();
+      const started = await post(`/api/stands/${standId}/visits/start`, { visitor_key: visitorKey() });
+      state.visitId = started.visit_id;
+      state.timer = setInterval(() => {
+        const total = Math.floor((Date.now() - state.startedAt) / 1000);
+        $('visitTimer').textContent = `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+      }, 1000);
+    } catch (error) {
+      $('ratingArea').hidden = true;
+      $('visitError').hidden = false;
+      $('visitError').querySelector('p').textContent = error.message;
+    }
+    $('starPicker').addEventListener('click', (event) => {
+      const button = event.target.closest('button');
+      if (!button) return;
+      state.stars = Number(button.dataset.stars);
+      [...$('starPicker').children].forEach((star) => star.classList.toggle('selected', Number(star.dataset.stars) <= state.stars));
+      $('submitRating').disabled = false;
+    });
+    $('submitRating').addEventListener('click', async () => {
+      if (!state.visitId || !state.stars) return;
+      $('submitRating').disabled = true;
+      try {
+        await post(`/api/stands/${standId}/visits/${state.visitId}/finish`, { visitor_key: visitorKey(), stars: state.stars });
+        clearInterval(state.timer);
+        localStorage.setItem(`feira-tech-rated-${standId}`, '1');
+        $('ratingArea').hidden = true;
+        $('successState').hidden = false;
+      } catch (error) {
+        toast(error.message);
+        $('submitRating').disabled = false;
+      }
+    });
+    $('openSocialStudio').addEventListener('click', () => openSocialStudio(standId));
+  }
+
+  function shareCaption() {
+    return `Acabei de conhecer o projeto “${state.stand.name}” na Feira Tech Vocação e dei ${state.stars} estrelas! Ideias que transformam vidas merecem ser compartilhadas.\n\n${hashtags}`;
+  }
+
+  function wrapCanvasText(context, text, x, y, maxWidth, lineHeight) {
+    let line = '';
+    text.split(' ').forEach((word) => {
+      const test = `${line}${word} `;
+      if (context.measureText(test).width > maxWidth && line) {
+        context.fillText(line.trim(), x, y);
+        line = `${word} `;
+        y += lineHeight;
+      } else line = test;
+    });
+    context.fillText(line.trim(), x, y);
+  }
+
+  function drawSocialCard() {
+    const canvas = $('socialCanvas');
+    const context = canvas.getContext('2d');
+    context.fillStyle = '#0e7692'; context.fillRect(0, 0, 1080, 1080);
+    context.fillStyle = '#f5e024'; context.beginPath(); context.arc(980, 90, 170, 0, Math.PI * 2); context.fill();
+    context.fillStyle = '#c31f5e'; context.beginPath(); context.arc(90, 970, 120, 0, Math.PI * 2); context.fill();
+    context.fillStyle = '#073f53'; context.beginPath(); context.roundRect(70, 185, 940, 555, 28); context.fill();
+    if (state.photo) {
+      const size = Math.min(state.photo.width, state.photo.height);
+      context.save(); context.beginPath(); context.roundRect(70, 185, 940, 555, 28); context.clip();
+      context.drawImage(state.photo, (state.photo.width - size) / 2, (state.photo.height - size) / 2, size, size, 70, 185, 940, 555); context.restore();
+    } else {
+      context.fillStyle = '#b4d33a'; context.font = '800 176px sans-serif'; context.textAlign = 'center'; context.fillText(`${state.stars}★`, 540, 525);
+    }
+    context.textAlign = 'left'; context.fillStyle = '#ffffff'; context.font = '800 48px sans-serif'; context.fillText('FEIRA TECH VOCAÇÃO', 70, 100);
+    context.fillStyle = '#f5e024'; context.font = '800 42px sans-serif'; context.fillText('EU VIVI ESSA IDEIA.', 70, 805);
+    context.fillStyle = '#ffffff'; context.font = '800 56px sans-serif'; wrapCanvasText(context, state.stand.name, 70, 870, 940, 64);
+    context.font = '600 28px sans-serif'; context.fillStyle = '#d8f3f7'; context.fillText(`#feiratechvocacao  •  ${state.stars} estrelas`, 70, 1020);
+  }
+
+  function canvasBlob() { return new Promise((resolve) => $('socialCanvas').toBlob(resolve, 'image/png')); }
+
+  async function recordShare(standId) {
+    try { await post(`/api/stands/${standId}/engagement/share`, { visitor_key: visitorKey() }); } catch { /* O card continua disponível. */ }
+  }
+
+  function openSocialStudio(standId) {
+    showOnly('socialView');
+    drawSocialCard();
+    $('backToSuccess').onclick = (event) => { event.preventDefault(); showOnly('visitView'); };
+    $('socialPhoto').onchange = () => {
+      const file = $('socialPhoto').files[0];
+      if (!file || !file.type.startsWith('image/') || file.size > 12 * 1024 * 1024) { toast('Escolha uma imagem de até 12 MB.'); return; }
+      const image = new Image();
+      image.onload = () => { state.photo = image; drawSocialCard(); URL.revokeObjectURL(image.src); };
+      image.src = URL.createObjectURL(file);
+    };
+    $('downloadCard').onclick = async () => {
+      const link = document.createElement('a'); link.download = 'meu-card-feira-tech.png'; link.href = $('socialCanvas').toDataURL('image/png'); link.click();
+      await recordShare(standId);
+    };
+    $('shareCard').onclick = async () => {
+      const blob = await canvasBlob();
+      if (!blob) { toast('Não foi possível criar o card.'); return; }
+      const file = new File([blob], 'feira-tech.png', { type: 'image/png' });
+      try {
+        if (navigator.share && navigator.canShare?.({ files: [file] })) await navigator.share({ title: 'Feira Tech Vocação', text: shareCaption(), files: [file] });
+        else { await navigator.clipboard.writeText(shareCaption()); toast('Texto copiado. Baixe o card para publicar.'); }
+        await recordShare(standId);
+      } catch (error) { if (error.name !== 'AbortError') toast('Não foi possível abrir o compartilhamento.'); }
+    };
+    $('copyCaption').onclick = async () => { await navigator.clipboard.writeText(shareCaption()); toast('Texto e hashtags copiados.'); };
+    $('supportForm').onsubmit = async (event) => {
+      event.preventDefault();
+      try {
+        await post(`/api/stands/${standId}/engagement/support`, { visitor_key: visitorKey(), message: $('supportMessage').value.trim(), consent: $('supportConsent').checked });
+        $('supportForm').replaceChildren(Object.assign(document.createElement('p'), { className: 'support-sent', textContent: 'Apoio enviado! O expositor fará a aprovação antes de aparecer no mural.' }));
+      } catch (error) { toast(error.message); }
+    };
+  }
+
+  async function initExhibitor() {
+    showOnly('exhibitorView');
+    await loadStands();
+    $('accessForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const standId = $('standSelect').value;
+      const code = $('accessCode').value.trim();
+      try {
+        await post(`/api/stands/${standId}/access`, { access_code: code });
+        sessionStorage.setItem(`feira-tech-code-${standId}`, code);
+        location.href = `/stand/${standId}`;
+      } catch (error) { showFormMessage(error.message); }
+    });
+    $('createForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try {
+        const result = await post('/api/stands', { name: $('standName').value.trim(), course: $('courseSelect').value });
+        $('authLayout').hidden = true;
+        $('newAccessCode').textContent = result.access_code;
+        $('codeReveal').hidden = false;
+        sessionStorage.setItem(`feira-tech-code-${result.stand.id}`, result.access_code);
+        $('openNewDashboard').href = `/stand/${result.stand.id}`;
+      } catch (error) { showFormMessage(error.message); }
+    });
+  }
+
+  function showFormMessage(message) {
+    $('formMessage').textContent = message;
+    $('formMessage').hidden = false;
+  }
+
+  async function initDashboard(standId) {
+    showOnly('dashboardView');
+    const code = sessionStorage.getItem(`feira-tech-code-${standId}`);
+    if (!code) { location.replace('/expositor'); return; }
+    const load = async () => {
+      try {
+        const report = await request(`/api/stands/${standId}/dashboard?code=${encodeURIComponent(code)}`);
+        $('dashboardName').textContent = report.stand.name;
+        $('dashboardCourse').textContent = courseLabels[report.stand.course];
+        $('metricVisitors').textContent = report.visitors;
+        $('metricRating').textContent = report.visitors ? report.average_rating.toFixed(1) : '—';
+        $('metricAverageTime').textContent = formatDuration(report.average_duration_seconds);
+        $('metricTotalTime').textContent = formatDuration(report.total_duration_seconds);
+        $('metricShares').textContent = report.shares;
+        $('metricSupports').textContent = report.approved_supports;
+        renderDistribution(report.distribution, report.visitors);
+        renderRecent(report.recent_visits);
+        renderPending(report.pending_supports, standId, code, load);
+        const qrUrl = `/api/stands/${standId}/qr?code=${encodeURIComponent(code)}`;
+        $('standQr').src = qrUrl;
+        $('downloadQr').href = qrUrl;
+        $('exportCsv').href = `/api/stands/${standId}/export?code=${encodeURIComponent(code)}`;
+      } catch { sessionStorage.removeItem(`feira-tech-code-${standId}`); location.replace('/expositor'); }
+    };
+    $('refreshDashboard').addEventListener('click', load);
+    await load();
+  }
+
+  function renderDistribution(distribution, total) {
+    $('ratingDistribution').innerHTML = [5, 4, 3, 2, 1].map((star) => {
+      const count = distribution[String(star)] || 0;
+      const percentage = total ? Math.round(count / total * 100) : 0;
+      return `<div class="rating-row"><span>${star} ★</span><div><i style="width:${percentage}%"></i></div><b>${count}</b></div>`;
+    }).join('');
+  }
+
+  function renderRecent(visits) {
+    $('recentVisits').innerHTML = visits.length ? visits.map((visit) => {
+      const time = new Date(visit.finished_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      return `<div class="recent-row"><span><strong>${visit.stars} ★</strong><small>${time}</small></span><b>${formatDuration(visit.duration_seconds)}</b></div>`;
+    }).join('') : '<p class="empty-dark">As avaliações aparecerão aqui.</p>';
+  }
+
+  function renderPending(supports, standId, code, reload) {
+    $('pendingCount').textContent = supports.length;
+    const list = $('pendingSupports');
+    list.replaceChildren();
+    if (!supports.length) { list.innerHTML = '<p class="empty-dark">Nenhum apoio aguardando aprovação.</p>'; return; }
+    supports.forEach((support) => {
+      const row = document.createElement('div'); row.className = 'pending-row';
+      const copy = document.createElement('div');
+      const message = document.createElement('p'); message.textContent = support.message;
+      const meta = document.createElement('small'); meta.textContent = `${support.stars} ★ · ${new Date(support.created_at).toLocaleString('pt-BR')}`;
+      copy.append(message, meta);
+      const actions = document.createElement('div'); actions.className = 'moderation-actions';
+      [['approve', 'Aprovar'], ['reject', 'Rejeitar']].forEach(([action, label]) => {
+        const button = document.createElement('button'); button.className = action === 'approve' ? 'btn btn-primary' : 'btn btn-secondary'; button.textContent = label;
+        button.onclick = async () => { button.disabled = true; try { await post(`/api/stands/${standId}/engagement/${support.id}/moderate`, { access_code: code, action }); await reload(); } catch (error) { toast(error.message); button.disabled = false; } };
+        actions.appendChild(button);
+      });
+      row.append(copy, actions); list.appendChild(row);
+    });
+  }
+
+  if (path.startsWith('/visitar/')) initVisit(path.split('/')[2]);
+  else if (path.startsWith('/stand/')) initDashboard(path.split('/')[2]);
+  else if (path === '/expositor') initExhibitor();
+  else initHome();
+})();
