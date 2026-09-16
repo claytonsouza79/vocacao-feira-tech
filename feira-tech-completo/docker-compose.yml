@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: feira
+      POSTGRES_PASSWORD: feira
+      POSTGRES_DB: feira_tech
+    ports:
+      - "5432:5432"
+    volumes:
+      - feira_tech_pgdata:/var/lib/postgresql/data
+
+volumes:
+  feira_tech_pgdata:

@@ -1,0 +1,117 @@
+{
+  "stands": [
+    {
+      "id": "7f34939b8948",
+      "name": "teste stands das girls",
+      "course": "python",
+      "code_salt": "c2715325334b51165a08a2b86688baec",
+      "code_hash": "a34f92e0f257ea05adfedfceef863224f04db65ad4fb4d1cffb7cb0a4b280e12",
+      "created_at": "2026-09-16T11:31:09-03:00"
+    },
+    {
+      "id": "c2af345e6e72",
+      "name": "Marvel Boys",
+      "course": "web",
+      "code_salt": "df7654a3e0fc659cd5b58cfe4ce08a68",
+      "code_hash": "62d866ba9cde366e13cbb988fcc887dd2ee1dadec2b01331551b7a86d1ee5597",
+      "created_at": "2026-09-16T11:38:37-03:00"
+    },
+    {
+      "id": "6999b2adae5e",
+      "name": "Vertex",
+      "course": "web",
+      "code_salt": "45b4c18743d82ad7c370825389fb4601",
+      "code_hash": "fc48bd47cc0b92e6b2e59510dd49684b5c99a00e4e01b8dc88eb59372801426e",
+      "created_at": "2026-09-16T13:32:11-03:00"
+    }
+  ],
+  "visitas": [
+    {
+      "id": "f2393e1bfdfd4a02abe33b3ff40ac741",
+      "stand_id": "7f34939b8948",
+      "stand_nome": "teste stands das girls",
+      "curso": "python",
+      "visitor_hash": "bcce2467e26e6bd3e3ca6c407180e6a566c5f22e9d55410b2534269fb1be9ddc",
+      "started_at": "2026-09-16T11:31:24-03:00",
+      "finished_at": "2026-09-16T11:31:36-03:00",
+      "duration_seconds": 12,
+      "stars": 5
+    },
+    {
+      "id": "6cf44e2d1ed44cca8a1d8b89ffd8e6e9",
+      "stand_id": "c2af345e6e72",
+      "stand_nome": "Marvel Boys",
+      "curso": "web",
+      "visitor_hash": "bcce2467e26e6bd3e3ca6c407180e6a566c5f22e9d55410b2534269fb1be9ddc",
+      "started_at": "2026-09-16T11:39:13-03:00",
+      "finished_at": "2026-09-16T11:40:04-03:00",
+      "duration_seconds": 51,
+      "stars": 5
+    },
+    {
+      "id": "6527b97e33084ddeb1e32bf3d5f9c609",
+      "stand_id": "6999b2adae5e",
+      "stand_nome": "Vertex",
+      "curso": "web",
+      "visitor_hash": "bcce2467e26e6bd3e3ca6c407180e6a566c5f22e9d55410b2534269fb1be9ddc",
+      "started_at": "2026-09-16T13:32:38-03:00",
+      "finished_at": "2026-09-16T13:33:01-03:00",
+      "duration_seconds": 23,
+      "stars": 5
+    }
+  ],
+  "engajamentos": [
+    {
+      "id": "1db362fad06c49bd97d2d975774aaaaf",
+      "stand_id": "7f34939b8948",
+      "stand_nome": "teste stands das girls",
+      "visitor_hash": "bcce2467e26e6bd3e3ca6c407180e6a566c5f22e9d55410b2534269fb1be9ddc",
+      "type": "share",
+      "created_at": "2026-09-16T11:32:08-03:00"
+    },
+    {
+      "id": "ac338bbff5dd458cbfefc49d5c886413",
+      "stand_id": "7f34939b8948",
+      "stand_nome": "teste stands das girls",
+      "visitor_hash": "bcce2467e26e6bd3e3ca6c407180e6a566c5f22e9d55410b2534269fb1be9ddc",
+      "type": "support",
+      "message": "Muito da hora a Primeira Feira Tech da Vocação",
+      "stars": 5,
+      "status": "approved",
+      "created_at": "2026-09-16T11:32:54-03:00",
+      "moderated_at": "2026-09-16T11:33:28-03:00"
+    },
+    {
+      "id": "ee493420dfcd48edbb0192b612b0f4fb",
+      "stand_id": "c2af345e6e72",
+      "stand_nome": "Marvel Boys",
+      "visitor_hash": "bcce2467e26e6bd3e3ca6c407180e6a566c5f22e9d55410b2534269fb1be9ddc",
+      "type": "support",
+      "message": "muito legal a experiência",
+      "stars": 5,
+      "status": "approved",
+      "created_at": "2026-09-16T11:41:10-03:00",
+      "moderated_at": "2026-09-16T11:41:42-03:00"
+    },
+    {
+      "id": "c1369fae6193457a9a538428ae74fb2d",
+      "stand_id": "6999b2adae5e",
+      "stand_nome": "Vertex",
+      "visitor_hash": "bcce2467e26e6bd3e3ca6c407180e6a566c5f22e9d55410b2534269fb1be9ddc",
+      "type": "share",
+      "created_at": "2026-09-16T13:33:25-03:00"
+    },
+    {
+      "id": "701260c8ed1c4f628bfc0dacebaf5f81",
+      "stand_id": "6999b2adae5e",
+      "stand_nome": "Vertex",
+      "visitor_hash": "bcce2467e26e6bd3e3ca6c407180e6a566c5f22e9d55410b2534269fb1be9ddc",
+      "type": "support",
+      "message": "Gostei muito do projeto....",
+      "stars": 5,
+      "status": "approved",
+      "created_at": "2026-09-16T13:33:48-03:00",
+      "moderated_at": "2026-09-16T13:34:24-03:00"
+    }
+  ]
+}
